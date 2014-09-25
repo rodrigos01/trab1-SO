@@ -8,10 +8,10 @@ public class Trab1 {
 		Thread threadAula = new Thread(aula);
 		threadAula.start();
 		
-		while(!aula.fechada) {
-			Thread threadAluno = new Thread(new Aluno(aula));
-			threadAluno.start();
-		}
+//		while(!aula.fechada) {
+//			Thread threadAluno = new Thread(new Aluno(aula));
+//			threadAluno.start();
+//		}
 
 	}
 

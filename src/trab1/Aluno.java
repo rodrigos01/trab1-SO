@@ -13,6 +13,7 @@ public class Aluno implements Runnable {
 		while(!aula.fechada) {
 			
 			aula.inscreveParaAula();
+			
 			aula.aguardaAulaIniciar();
 			
 		}

@@ -1,5 +1,9 @@
 package trab1;
 
+import java.util.concurrent.Semaphore;
+
+import javax.sql.rowset.spi.SyncResolver;
+
 public class AulaMuayThay implements Runnable {
 
 	public boolean fechada = false;
@@ -32,12 +36,15 @@ public class AulaMuayThay implements Runnable {
 		
 	}
 	
-	public synchronized void aguardaLotacaoMaxima() {
-		System.out.println("aguardando lotação");
-		while(!lotado) {
-			System.out.println("Alunos inscritos: "+alunos);
+	public void aguardaLotacaoMaxima() {
+		System.out.println("Aguardando lotação");
+		Semaphore sem = new Semaphore(0);
+		try {
+			sem.acquire();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		System.out.println("Aula lotou");
 	}
 	
 	public synchronized void promoveAula() {
