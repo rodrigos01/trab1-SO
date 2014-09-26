@@ -1,17 +1,19 @@
 package trab1;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.concurrent.Semaphore;
-
-import javax.sql.rowset.spi.SyncResolver;
 
 public class AulaMuayThay implements Runnable {
 
 	public boolean fechada = false;
-	private int alunos = 0;
+	private LinkedList<Aluno> fila = new LinkedList<Aluno>();
+	private ArrayList<Aluno> alunos = new ArrayList<Aluno>();
 	private int maxAlunos = 10;
-	private boolean lotado = false;
 	private int aulas = 0;
 	private int maxAulas;
+	public Semaphore lotSem = new Semaphore(0),
+			aulaSem = new Semaphore(0);
 	
 	public AulaMuayThay(int aulas) {
 		maxAulas = aulas;
@@ -19,41 +21,44 @@ public class AulaMuayThay implements Runnable {
 	
 	@Override
 	public void run() {
-		aguardaLotacaoMaxima();
-		promoveAula();
-		
+		while(!fechada) {
+			promoveAula();
+		}
+		System.out.println("finalizado");
 	}
 	
-	public void inscreveParaAula() {
-		alunos++;
-		if(alunos == maxAlunos) {
-			alunos = 0;
-			lotado = true;
+	public void inscreveParaAula(Aluno aluno) {
+		System.out.println("aluno "+aluno.cod+" se inscreve na aula");
+		fila.add(aluno);
+		if(fila.size() >= maxAlunos) {
+			aulaSem.release();
 		}
 	}
 	
-	public synchronized void aguardaAulaIniciar() {
-		
-	}
-	
-	public void aguardaLotacaoMaxima() {
-		System.out.println("Aguardando lotação");
-		Semaphore sem = new Semaphore(0);
+	public void promoveAula() {
 		try {
-			sem.acquire();
+			aulaSem.acquire();
+			aulas++;
+			while(alunos.size() <= maxAlunos) {
+				alunos.add(fila.remove());
+			}
+			System.out.println("Aula nº "+aulas+" começa");
+			System.out.println("Alunos na Aula nº "+aulas+":");
+			for(Aluno a: alunos) {
+				System.out.println("	"+a.cod);
+			}
+			Thread.sleep(10000);
+			System.out.println("Aula nº "+aulas+" termina");
+			while(alunos.size() > 0) {
+				alunos.remove(0).aulaSem.release();
+			}
+			
+			if(aulas >= maxAulas) {
+				fechada = true;
+			}
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
-	}
-	
-	public synchronized void promoveAula() {
-		
-		System.out.println("Aula começa");
-		
-		aulas++;
-		if(aulas >= maxAulas) {
-			fechada = true;
 		}
 	}
 
