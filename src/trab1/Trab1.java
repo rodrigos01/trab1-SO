@@ -11,7 +11,7 @@ public class Trab1 {
 		while(!aula.fechada) {
 			Thread threadAluno = new Thread(new Aluno(aula));
 			threadAluno.start();
-			Thread.sleep(2000);
+			Thread.sleep(Randomizer.getInt(1000, 5000));
 		}
 
 	}

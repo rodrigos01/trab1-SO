@@ -19,19 +19,29 @@ public class Aluno implements Runnable {
 	public void run() {
 		while(!aula.fechada) {
 			
-			aula.inscreveParaAula(this);
+			aula.inscreveAluno(this);
 			
 			aguardaAula();
 			
+			fazerCoisasAleatorias();
+			
 		}
-		System.out.println("finalizado");
-		
+		System.out.println("Aluno "+cod+" foi embora");
+		return;
 	}
 	
 	public void aguardaAula() {
 		try {
 			aulaSem.acquire();
-			System.out.println("aluno "+cod+" saiu da aula");
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	private void fazerCoisasAleatorias() {
+		try {
+			Thread.sleep(Randomizer.getInt(5000, 10000));
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

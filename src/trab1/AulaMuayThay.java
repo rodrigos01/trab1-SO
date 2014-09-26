@@ -22,40 +22,65 @@ public class AulaMuayThay implements Runnable {
 	@Override
 	public void run() {
 		while(!fechada) {
+			aguardaLotacao();
 			promoveAula();
 		}
-		System.out.println("finalizado");
+		System.out.println("academia fechada");
+		String ultimos = "Alunos ainda na fila: \n";
+		while(!fila.isEmpty()) {
+			Aluno a = fila.remove();
+			ultimos += "	"+a.cod+"\n";
+			a.aulaSem.release();
+		}
+		System.out.println(ultimos);
+		return;
 	}
 	
-	public void inscreveParaAula(Aluno aluno) {
+	public void inscreveAluno(Aluno aluno) {
 		System.out.println("aluno "+aluno.cod+" se inscreve na aula");
 		fila.add(aluno);
 		if(fila.size() >= maxAlunos) {
-			aulaSem.release();
+			lotSem.release();
 		}
 	}
 	
-	public void promoveAula() {
+	public void aguardaLotacao() {
+		try {
+			lotSem.acquire();
+			
+			for(int i=0; i<10; i++) {
+				Aluno a = fila.remove();
+				System.out.println("aluno "+a.cod+" entrou na aula");
+				alunos.add(a);
+			}
+			
+			aulaSem.release();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public synchronized void promoveAula() {
 		try {
 			aulaSem.acquire();
 			aulas++;
-			while(alunos.size() <= maxAlunos) {
-				alunos.add(fila.remove());
-			}
 			System.out.println("Aula nº "+aulas+" começa");
-			System.out.println("Alunos na Aula nº "+aulas+":");
-			for(Aluno a: alunos) {
-				System.out.println("	"+a.cod);
-			}
-			Thread.sleep(10000);
-			System.out.println("Aula nº "+aulas+" termina");
-			while(alunos.size() > 0) {
-				alunos.remove(0).aulaSem.release();
-			}
-			
 			if(aulas >= maxAulas) {
 				fechada = true;
 			}
+			Thread.sleep(10000);
+			
+			String chamada = "Lista de chamada: \n";
+			while(!alunos.isEmpty()) {
+				Aluno a = alunos.remove(0);
+				a.aulaSem.release();
+				System.out.println("aluno "+a.cod+" saiu da aula");
+				chamada += "	"+a.cod+"\n";
+			}
+
+			System.out.println("Aula nº "+aulas+" termina\n"+chamada);
+			
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
