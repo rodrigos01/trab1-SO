@@ -29,7 +29,7 @@ public class Fila extends LinkedList<Aluno>{
 
     @Override
     public Aluno remove() {
-        if(model != null)
+        if(model != null && !model.isEmpty())
             model.remove(0);
         return super.remove(); //To change body of generated methods, choose Tools | Templates.
     }
